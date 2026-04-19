@@ -1,36 +1,503 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   STREAM IT! — Radio Broadcast Design System
+   Palette: Warm midnight, amber glow, battered brass, cream newsprint
+───────────────────────────────────────────────────────────────────────── */
+
 @theme {
-  --color-luxegreen: #00FF94;
-  --color-richsage: #4B5F4E;
-  --color-cheekwhite: #F0F4F8;
-  
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-radio-bg:       #0D0B08;
+  --color-radio-surface:  #141209;
+  --color-radio-panel:    #1C1811;
+  --color-radio-border:   #3A2F1A;
+  --color-amber:          #F5A623;
+  --color-amber-glow:     #FFB84D;
+  --color-amber-dim:      #8C5A10;
+  --color-cream:          #EDE4C8;
+  --color-cream-muted:    #9E947A;
+  --color-vu-green:       #39FF14;
+  --color-vu-yellow:      #FFE500;
+  --color-vu-red:         #FF3B30;
+  --color-brass:          #B5902A;
+  --color-dial-track:     #2A2215;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono:    'IBM Plex Mono', 'Courier New', monospace;
+  --font-sans:    'Inter', system-ui, sans-serif;
 }
 
 :root {
-  --background: #050505;
-  --foreground: #ededed;
+  --background: #0D0B08;
+  --foreground: #EDE4C8;
 }
+
+/* ── Reset & Base ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3A2F1A; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #F5A623; }
+
+/* ── Selection ────────────────────────────────────────────────────── */
+::selection { background: rgba(245, 166, 35, 0.3); color: #EDE4C8; }
+
+/* ── Grain overlay (SVG noise for that analog feel) ──────────────── */
+.grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.4;
+}
+
+/* ── Glass/Radio Panel utility ────────────────────────────────────── */
 @layer utilities {
-  .glass-panel {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-xl;
-  }
-  
-  .glass-button {
-    @apply px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 transition-all duration-300;
+  .radio-panel {
+    background: linear-gradient(135deg, rgba(28, 24, 17, 0.95) 0%, rgba(20, 18, 9, 0.98) 100%);
+    border: 1px solid #3A2F1A;
+    backdrop-filter: blur(20px) saturate(1.2);
+    -webkit-backdrop-filter: blur(20px) saturate(1.2);
+    box-shadow:
+      0 0 0 0.5px rgba(181, 144, 42, 0.15),
+      0 8px 32px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(245, 166, 35, 0.08);
   }
 
-  .text-glow {
-    text-shadow: 0 0 20px rgba(0, 255, 148, 0.5);
+  .radio-panel-elevated {
+    background: linear-gradient(135deg, rgba(35, 28, 16, 0.98) 0%, rgba(22, 18, 10, 1) 100%);
+    border: 1px solid rgba(181, 144, 42, 0.3);
+    box-shadow:
+      0 0 0 0.5px rgba(181, 144, 42, 0.2),
+      0 16px 48px rgba(0, 0, 0, 0.8),
+      0 0 60px rgba(245, 166, 35, 0.04),
+      inset 0 1px 0 rgba(245, 166, 35, 0.12),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.5);
   }
+
+  .amber-glow {
+    text-shadow:
+      0 0 10px rgba(245, 166, 35, 0.8),
+      0 0 30px rgba(245, 166, 35, 0.4),
+      0 0 60px rgba(245, 166, 35, 0.2);
+  }
+
+  .amber-glow-sm {
+    text-shadow: 0 0 8px rgba(245, 166, 35, 0.6), 0 0 20px rgba(245, 166, 35, 0.2);
+  }
+
+  .dial-shadow {
+    box-shadow:
+      0 0 20px rgba(245, 166, 35, 0.4),
+      0 0 60px rgba(245, 166, 35, 0.15),
+      inset 0 2px 4px rgba(255, 255, 255, 0.05),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  .btn-radio {
+    background: linear-gradient(135deg, rgba(42, 34, 21, 0.9), rgba(28, 24, 17, 0.9));
+    border: 1px solid rgba(58, 47, 26, 0.8);
+    color: #9E947A;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .btn-radio:hover {
+    background: linear-gradient(135deg, rgba(60, 48, 24, 0.95), rgba(42, 34, 21, 0.95));
+    border-color: rgba(181, 144, 42, 0.4);
+    color: #F5A623;
+    box-shadow: 0 0 0 1px rgba(181, 144, 42, 0.2), 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 166, 35, 0.1);
+  }
+
+  .btn-radio-active {
+    background: linear-gradient(135deg, rgba(80, 60, 20, 0.95), rgba(55, 40, 15, 0.95)) !important;
+    border-color: rgba(245, 166, 35, 0.5) !important;
+    color: #F5A623 !important;
+    box-shadow: 0 0 0 1px rgba(245, 166, 35, 0.3), 0 0 20px rgba(245, 166, 35, 0.2), inset 0 0 12px rgba(245, 166, 35, 0.05) !important;
+  }
+
+  .scan-line::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.08) 2px,
+      rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+  }
+
+  .frequency-bar {
+    background: linear-gradient(to top, #39FF14, #FFE500 60%, #FF3B30);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .ticker-wrap {
+    overflow: hidden;
+    box-shadow: inset 8px 0 16px rgba(13, 11, 8, 0.95), inset -8px 0 16px rgba(13, 11, 8, 0.95);
+  }
+
+  .ticker-content {
+    display: flex;
+    white-space: nowrap;
+    animation: ticker-scroll 30s linear infinite;
+  }
+
+  @keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .vu-needle {
+    transform-origin: bottom center;
+    animation: vu-swing 1.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes vu-swing {
+    0%   { transform: rotate(-35deg); }
+    40%  { transform: rotate(15deg); }
+    70%  { transform: rotate(-20deg); }
+    100% { transform: rotate(35deg); }
+  }
+
+  .eq-bar { animation: eq-dance var(--dur, 1.2s) ease-in-out infinite alternate; }
+
+  @keyframes eq-dance {
+    0%   { height: var(--min-h, 15%); }
+    100% { height: var(--max-h, 85%); }
+  }
+
+  .signal-blink {
+    animation: signal-pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes signal-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(57, 255, 20, 0.8); }
+    50%       { opacity: 0.4; box-shadow: 0 0 2px rgba(57, 255, 20, 0.3); }
+  }
+
+  .amber-flicker {
+    animation: amber-flicker 4s ease-in-out infinite;
+  }
+
+  @keyframes amber-flicker {
+    0%, 100% { opacity: 1; }
+    48%      { opacity: 1; }
+    50%      { opacity: 0.85; }
+    52%      { opacity: 1; }
+    80%      { opacity: 1; }
+    82%      { opacity: 0.9; }
+    84%      { opacity: 1; }
+  }
+
+  .dial-ring {
+    background: conic-gradient(
+      rgba(245, 166, 35, 0.9) var(--progress, 0deg),
+      rgba(58, 47, 26, 0.4) var(--progress, 0deg)
+    );
+  }
+
+  .progress-track {
+    background: linear-gradient(90deg,
+      #F5A623 0%,
+      #FFB84D 40%,
+      #FF8C00 80%,
+      #CC6600 100%
+    );
+    box-shadow: 0 0 8px rgba(245, 166, 35, 0.6);
+  }
+
+  .waveform-bar {
+    animation: wave var(--d, 0.9s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+    transform-origin: bottom;
+  }
+
+  @keyframes wave {
+    from { transform: scaleY(0.15); }
+    to   { transform: scaleY(1); }
+  }
+
+  /* Custom range slider — radio dial feel */
+  input[type="range"].radio-seek {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+  }
+
+  input[type="range"].radio-seek::-webkit-slider-runnable-track {
+    height: 4px;
+    background: linear-gradient(90deg, #F5A623 var(--seek-pct, 0%), #3A2F1A var(--seek-pct, 0%));
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(245, 166, 35, 0.3);
+  }
+
+  input[type="range"].radio-seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFD080, #F5A623);
+    border: 1.5px solid rgba(255, 220, 120, 0.6);
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
+    margin-top: -5px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  input[type="range"].radio-seek::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 16px rgba(245, 166, 35, 1), 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  input[type="range"].radio-seek::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #FFD080, #F5A623);
+    border: 1.5px solid rgba(255, 220, 120, 0.6);
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.8);
+    cursor: pointer;
+  }
+
+  input[type="range"].radio-volume {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 3px;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+  }
+
+  input[type="range"].radio-volume::-webkit-slider-runnable-track {
+    height: 3px;
+    background: linear-gradient(90deg, #F5A623 var(--vol-pct, 70%), #3A2F1A var(--vol-pct, 70%));
+    border-radius: 2px;
+  }
+
+  input[type="range"].radio-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #F5A623;
+    box-shadow: 0 0 6px rgba(245, 166, 35, 0.7);
+    margin-top: -3.5px;
+    cursor: pointer;
+  }
+
+  /* ── Ripple effect ─────────────────────────────────────────────── */
+  .ripple-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes ripple-out {
+    0%   { width: 0px; height: 0px; opacity: 0.6; transform: translate(-50%,-50%) scale(0); }
+    100% { width: 500px; height: 500px; opacity: 0; transform: translate(-50%,-50%) scale(1); }
+  }
+
+  .ripple-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(245, 166, 35, 0.22);
+    pointer-events: none;
+    animation: ripple-out 0.6s ease-out forwards;
+    transform-origin: center;
+  }
+
+  /* ── Animated wave border glow on hover ───────────────────────── */
+  @keyframes wave-border-slide {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200%  0; }
+  }
+
+  .wave-border-btn {
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .wave-border-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    opacity: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(245, 166, 35, 0.4) 40%,
+      rgba(255, 200, 80, 0.7) 50%,
+      rgba(245, 166, 35, 0.4) 60%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    transition: opacity 0.3s ease;
+    animation: wave-border-slide 1.6s linear infinite paused;
+    pointer-events: none;
+  }
+
+  .wave-border-btn:hover::before {
+    opacity: 1;
+    animation-play-state: running;
+  }
+
+  /* ── Magnetic button container ────────────────────────────────── */
+  .btn-magnetic {
+    transition: transform 0.18s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+  }
+
+  /* ── Canvas wave background ───────────────────────────────────── */
+  .wave-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Cursor spotlight ─────────────────────────────────────────── */
+  .cursor-spotlight {
+    position: fixed;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle,
+      rgba(245, 166, 35, 0.07) 0%,
+      rgba(245, 166, 35, 0.025) 45%,
+      transparent 70%
+    );
+    transition: opacity 0.4s ease;
+  }
+
+  /* ── Section reveal ───────────────────────────────────────────── */
+  .reveal-section {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal-section.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Wavy morphing button shapes ──────────────────────────────── */
+  @keyframes wavy-morph-lg {
+    0%,100% { border-radius: 42% 58% 56% 44% / 48% 42% 58% 52%; }
+    20%     { border-radius: 58% 42% 40% 60% / 56% 58% 42% 44%; }
+    40%     { border-radius: 46% 54% 60% 40% / 42% 52% 48% 58%; }
+    60%     { border-radius: 60% 40% 46% 54% / 60% 44% 56% 40%; }
+    80%     { border-radius: 50% 50% 38% 62% / 44% 60% 40% 56%; }
+  }
+
+  @keyframes wavy-morph-sm {
+    0%,100% { border-radius: 35% 65% 65% 35% / 35% 35% 65% 65%; }
+    33%     { border-radius: 65% 35% 35% 65% / 65% 65% 35% 35%; }
+    66%     { border-radius: 50% 50% 35% 65% / 65% 35% 65% 35%; }
+  }
+
+  /* Primary CTA wavy button */
+  .btn-wavy-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    animation: wavy-morph-lg 8s ease-in-out infinite;
+    transition: box-shadow 0.3s ease, filter 0.3s ease, transform 0.18s cubic-bezier(0.23,1,0.32,1);
+    will-change: border-radius, transform;
+    padding: 0.75rem 1.5rem;
+  }
+  .btn-wavy-lg:hover {
+    filter: brightness(1.12);
+  }
+
+  /* Small icon wavy button */
+  .btn-wavy-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    animation: wavy-morph-sm 10s ease-in-out infinite;
+    transition: box-shadow 0.2s ease, color 0.2s ease, background 0.2s ease,
+                filter 0.2s ease, transform 0.18s cubic-bezier(0.23,1,0.32,1);
+    will-change: border-radius, transform;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+  }
+  .btn-wavy-sm:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Wavy Progress Fill Animation */
+  @keyframes wavy-progress {
+    0%   { background-position: 0 0; }
+    100% { background-position: 40px 0; }
+  }
+
+  .wavy-progress-fill {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #F5A623, #FFB84D);
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.5);
+  }
+  .wavy-progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='10' viewBox='0 0 40 10' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 5 Q 10 0, 20 5 T 40 5' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: repeat-x;
+    animation: wavy-progress 1s linear infinite;
+    opacity: 0.8;
+  }
+
+  /* Wavy active state (for toggled buttons) */
+  .btn-wavy-active {
+    background: linear-gradient(135deg, rgba(80,60,20,0.95), rgba(55,40,15,0.95)) !important;
+    border-color: rgba(245,166,35,0.5) !important;
+    color: #F5A623 !important;
+    box-shadow: 0 0 0 1px rgba(245,166,35,0.3),
+                0 0 20px rgba(245,166,35,0.25),
+                inset 0 0 12px rgba(245,166,35,0.06) !important;
+  }
+
+  /* Title wave shimmer  */
+  @keyframes title-shimmer {
+    0%,100% { text-shadow: 0 0 12px rgba(245,166,35,0.5), 0 0 30px rgba(245,166,35,0.2); }
+    50%     { text-shadow: 0 0 20px rgba(245,166,35,0.8), 0 0 50px rgba(245,166,35,0.35), 0 0 80px rgba(245,166,35,0.15); }
+  }
+  .title-shimmer { animation: title-shimmer 3s ease-in-out infinite; }
 }
